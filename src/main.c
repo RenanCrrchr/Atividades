@@ -74,41 +74,30 @@ if (!gpio_is_ready_dt(&led_azul)) {
     }
 
     printk("LED blinking on %s pin %d\n", led_vermelho.port->name, led_vermelho.pin);
-    int estado = 0;
-
+    int state = 0;
     while (1) {
         // Toggle do LED usando a nova API
-        if ( estado == 0){
+        
+        if(state == 0){
         gpio_pin_set_dt(&led_verde, 1);
         gpio_pin_set_dt(&led_azul, 0);
         gpio_pin_set_dt(&led_vermelho, 0);
-        
-        k_msleep(5*SLEEP_TIME_MS);
 
-        estado = 1;
+        k_msleep(SLEEP_TIME_MS);
 
-        continue;
-        }
-        if (estado == 1){
-        gpio_pin_set_dt(&led_verde, 1);
-        gpio_pin_set_dt(&led_azul, 0);
-        gpio_pin_set_dt(&led_vermelho, 1);
-        
-        k_msleep(2*SLEEP_TIME_MS);
-
-        estado = 2;
+        state = 1;
 
         continue;
         }
         
-        if(estado == 2){
+        if(state == 1){
         gpio_pin_set_dt(&led_verde, 0);
         gpio_pin_set_dt(&led_azul, 0);
-        gpio_pin_set_dt(&led_vermelho, 1);
-        
-        k_msleep(6*SLEEP_TIME_MS);
+        gpio_pin_set_dt(&led_vermelho, 0);
 
-        estado = 0;
+        k_msleep(SLEEP_TIME_MS);
+
+        state = 0;
 
         continue;
         }
