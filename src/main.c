@@ -83,7 +83,7 @@ if (!gpio_is_ready_dt(&led_azul)) {
         gpio_pin_set_dt(&led_azul, 0);
         gpio_pin_set_dt(&led_vermelho, 0);
 
-        k_msleep(SLEEP_TIME_MS);
+        k_msleep(2*SLEEP_TIME_MS);
 
         state = 1;
 
@@ -95,7 +95,7 @@ if (!gpio_is_ready_dt(&led_azul)) {
         gpio_pin_set_dt(&led_azul, 0);
         gpio_pin_set_dt(&led_vermelho, 0);
 
-        k_msleep(SLEEP_TIME_MS);
+        k_msleep(2*SLEEP_TIME_MS);
 
         state = 0;
 
