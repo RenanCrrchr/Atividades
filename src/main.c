@@ -2,7 +2,7 @@
 #include <zephyr/device.h>
 #include <zephyr/drivers/gpio.h>
 
-#define SLEEP_TIME_MS 500
+#define SLEEP_TIME_MS 1000
 
 // Define o LED usando Device Tree
 #define LED0_NODE DT_ALIAS(led0)
@@ -74,26 +74,43 @@ if (!gpio_is_ready_dt(&led_azul)) {
     }
 
     printk("LED blinking on %s pin %d\n", led_vermelho.port->name, led_vermelho.pin);
-
+    int estado = 0;
 
     while (1) {
         // Toggle do LED usando a nova API
+        if ( estado == 0){
         gpio_pin_set_dt(&led_verde, 1);
         gpio_pin_set_dt(&led_azul, 0);
         gpio_pin_set_dt(&led_vermelho, 0);
         
         k_msleep(5*SLEEP_TIME_MS);
-        
+
+        estado = 1;
+
+        continue;
+        }
+        if (estado == 1){
         gpio_pin_set_dt(&led_verde, 1);
         gpio_pin_set_dt(&led_azul, 0);
         gpio_pin_set_dt(&led_vermelho, 1);
         
         k_msleep(2*SLEEP_TIME_MS);
+
+        estado = 2;
+
+        continue;
+        }
         
+        if(estado == 2){
         gpio_pin_set_dt(&led_verde, 0);
         gpio_pin_set_dt(&led_azul, 0);
         gpio_pin_set_dt(&led_vermelho, 1);
         
         k_msleep(6*SLEEP_TIME_MS);
+
+        estado = 0;
+
+        continue;
+        }
     }
 }
