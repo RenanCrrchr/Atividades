@@ -1,48 +1,38 @@
-#include <zephyr/kernel.h>
-#include <zephyr/device.h>
-#include <zephyr/drivers/gpio.h>
+#include <zephyr/kernel.h>             // Funções básicas do Zephyr (ex: k_msleep, k_thread, etc.)
+#include <zephyr/device.h>             // API para obter e utilizar dispositivos do sistema
+#include <zephyr/drivers/gpio.h>       // API para controle de pinos de entrada/saída (GPIO)
+#include <pwm_z42.h>                // Biblioteca personalizada com funções de controle do TPM (Timer/PWM Module)
 
-#define SLEEP_TIME_MS 1000
-
-// Define o LED usando Device Tree
-#define LED0_NODE DT_ALIAS(led0)
-
-// Verifica se o LED está definido no Device Tree
-#if DT_NODE_HAS_STATUS(LED0_NODE, okay)
-static const struct gpio_dt_spec led_verde = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
-#else
-#error "Unsupported board: led0 devicetree alias is not defined"
-#endif
-
-void main(void)
+// Define o valor do registrador MOD do TPM para configurar o período do PWM
+#define TPM_MODULE 1000         // Define a frequência do PWM fpwm = (TPM_CLK / (TPM_MODULE * PS))
+// Valores de duty cycle correspondentes a diferentes larguras de pulso
+uint16_t duty_50  = TPM_MODULE/2;       // 50% de duty cycle (meio brilho)
+uint16_t duty_20  = TPM_MODULE*4/5;
+int main(void)
 {
-    int ret;
+    // Inicializa o módulo TPM2 com:
+    // - base do TPMx
+    // - fonte de clock PLL/FLL (TPM_CLK)
+    // - valor do registrador MOD
+    // - tipo de clock (TPM_CLK)
+    // - prescaler de 1 a 128 (PS)
+    // - modo de operação EDGE_PWM
+    pwm_tpm_Init(TPM2, TPM_PLLFLL, TPM_MODULE, TPM_CLK, PS_128, EDGE_PWM);
 
-    // Verifica se o device está pronto
-    if (!gpio_is_ready_dt(&led_verde)) {
-        printk("Error: LED device %s is not ready\n", led_verde.port->name);
-        return;
+    // Inicializa o canal 0 do TPM2 para gerar sinal PWM na porta GPIOB_18
+    // - modo TPM_PWM_H (nível alto durante o pulso)
+    pwm_tpm_Ch_Init(TPM2, 0, TPM_PWM_H, GPIOB, 18);
+	pwm_tpm_Ch_Init(TPM2, 1, TPM_PWM_H, GPIOB, 19);
+
+    // Define o valor do duty cycle: nesse caso, duty_100 (LED quase desligado)
+    pwm_tpm_CnV(TPM2, 0, duty_50);
+	pwm_tpm_CnV(TPM2, 1, duty_20);
+
+    // Loop infinito
+    for (;;)
+    {
+        // O programa poderia alterar o duty cycle dinamicamente aqui se desejado
     }
 
-
-    // Configura o pino como saída
-    ret = gpio_pin_configure_dt(&led_verde, GPIO_OUTPUT_ACTIVE);
-    if (ret < 0) {
-        printk("Error %d: failed to configure LED pin\n", ret);
-        return;
-    }
-
-    printk("LED blinking on %s pin %d\n", led_verde.port->name, led_verde.pin);
-
-
-    while (1) {
-        // Toggle do LED usando a nova API
-        
-        gpio_pin_set_dt(&led_verde, 1);
-		k_msleep(SLEEP_TIME_MS*2);
-
-		gpio_pin_set_dt(&led_verde, 0);
-		k_msleep(SLEEP_TIME_MS*2);
-
-    }
+    return 0;
 }
