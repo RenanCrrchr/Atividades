@@ -39,7 +39,7 @@ int main(void)
 
     gpio_pin_configure(gpioa_dev, 12, GPIO_OUTPUT_ACTIVE);
     gpio_pin_configure(gpioa_dev, 13, GPIO_OUTPUT_INACTIVE);
-    gpio_pin_configure(gpiob_dev, 0, GPIO_OUTPUT_INACTIVE);
+    gpio_pin_configure(gpiob_dev, 0, GPIO_OUTPUT_ACTIVE);
     gpio_pin_configure(gpiob_dev, 1, GPIO_OUTPUT_INACTIVE);
 
     // Loop infinito
