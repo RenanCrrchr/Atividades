@@ -39,10 +39,10 @@ void main(void)
         // Toggle do LED usando a nova API
         
         gpio_pin_set_dt(&led_verde, 1);
-		k_msleep(SLEEP_TIME_MS);
+		k_msleep(SLEEP_TIME_MS*2);
 
 		gpio_pin_set_dt(&led_verde, 0);
-		k_msleep(SLEEP_TIME_MS);
+		k_msleep(SLEEP_TIME_MS*2);
 
     }
 }
